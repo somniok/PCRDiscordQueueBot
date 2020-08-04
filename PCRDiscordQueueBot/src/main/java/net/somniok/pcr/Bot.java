@@ -1,28 +1,20 @@
 package net.somniok.pcr;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import javax.security.auth.login.LoginException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vdurmont.emoji.EmojiParser;
 
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -34,9 +26,7 @@ public class Bot extends ListenerAdapter{
 	public static final char PREFIX_CHAR = '!';
 
 	protected static Logger logger = LoggerFactory.getLogger(Bot.class);
-	
-	protected static JDA jda;
-	
+		
 	protected static PCRMessagePack msgPack;
 	
 	protected List<String>[] oneHitBossQueues;
@@ -46,7 +36,7 @@ public class Bot extends ListenerAdapter{
 	
 	protected int currBoss = 0;
 
-	protected static final int TIME_OUT = 30;
+	protected static final int TIME_OUT = 300;
 	protected static final ScheduledExecutorService queueUpdate = Executors.newScheduledThreadPool(1);
 	protected static final ScheduledExecutorService hitting = Executors.newScheduledThreadPool(1);
 	
@@ -65,29 +55,6 @@ public class Bot extends ListenerAdapter{
 		
 	}
 	
-    public static void main(String[] args) throws LoginException {
-//        if (args.length < 1) {
-//            System.out.println("You have to provide a token as first argument!");
-//            System.exit(1);
-//        }
-    	FileReader reader;
-		try {
-			reader = new FileReader("config.properties");
-	        Properties p=new Properties();  
-	        p.load(reader);
-	    	jda = JDABuilder.createLight(p.getProperty("token"))
-	                .addEventListeners(new Bot())
-	                .setActivity(Activity.playing("公主連結戰隊戰")).build();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}  
-        
-    }
-
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
         Message msg = event.getMessage();
@@ -97,7 +64,7 @@ public class Bot extends ListenerAdapter{
 
         if (msg.getContentRaw().equals("!start")){
             MessageChannel channel = event.getChannel();
-            msgPack = new PCRMessagePack(channel.getIdLong());
+            msgPack = new PCRMessagePack(channel);
             channel.sendMessage("1️⃣2️⃣3️⃣4️⃣5️⃣分別代表1/2/3/4/5王").queue(r -> msgPack.setInfo(r));
             channel.sendMessage("想排隊點A/B, 出刀前請點D防撞, 王倒請在C點一下隻王").queue(r -> msgPack.setInfo2(r));
 			channel.sendMessage("A: 1刀秒王排這邊").queue(m /* => Message */ -> {
@@ -116,10 +83,22 @@ public class Bot extends ListenerAdapter{
 				msgPack.setControlD(m);
 				m.addReaction("⚔️").queue();
 			});
-			listBossQueue();
+			channel.sendMessage(getQueue()).queue(m->{
+		    	msgPack.setQueueList(m);
+		    });
 			
         } else if(msg.getContentRaw().equals("!end")) {
-        	
+        	msgPack.getInfo().delete().queue();
+        	msgPack.getInfo2().delete().queue();
+        	msgPack.getControlA().delete().queue();
+        	msgPack.getControlB().delete().queue();
+        	msgPack.getControlC().delete().queue();
+        	msgPack.getControlD().delete().queue();
+        	msgPack.getQueueList().delete().queue();
+        	for(int i=0;i<5;i++) {
+        		oneHitBossQueues[i].clear();
+        		bossQueues[i].clear();
+        	}
         } else if(msg.getContentRaw().equals("!startAdmin")) {
         	
         }
@@ -130,10 +109,12 @@ public class Bot extends ListenerAdapter{
     		if(currBoss == bossNo) return;
     		
     		++totalBossCount;
-    		
+
     		currBoss = bossNo;
 	    	if(msgPack.getControlD() != null) {
-	    		msgPack.getControlD().editMessage("D: 出刀前點一下⚔️防撞刀, 目前打到" + currBoss + "王" ).queue();
+	    		msgPack.getControlD().editMessage("D: 出刀前點一下⚔️防撞刀, 目前打到" + currBoss + "王" ).queue(m->{
+	    			m.delete().queueAfter(TIME_OUT, TimeUnit.SECONDS);
+	    		});
 	    	}
 	    	
 //	    	if(queueTimeout !== null){
@@ -168,7 +149,7 @@ public class Bot extends ListenerAdapter{
     	}
     }
     
-    protected synchronized void listBossQueue() {
+    protected synchronized String getQueue() {
     	String msg = "";
     	msg += "目前隊列\n";
     	for (int i=0;i<5;i++){
@@ -185,12 +166,13 @@ public class Bot extends ListenerAdapter{
     		}
     		msg+= "\n";
     	}
-    	if(msgPack.getListing() != null) {
-    		msgPack.getListing().editMessage(msg).queue();
-    	} else {
-    		jda.getTextChannelById(msgPack.getChannelId()).sendMessage(msg).queue(m->{
-    			msgPack.setListing(m);
-    		});
+    	return msg;
+    }
+    
+    protected void listBossQueue() {
+    	String queueMsg = getQueue();
+    	if(msgPack.getQueueList() != null) {
+    		msgPack.getQueueList().editMessage(queueMsg).queue();
     	}
 //    	if(listMessage !== null){
 //    		listMessage.edit(m);
@@ -208,7 +190,7 @@ public class Bot extends ListenerAdapter{
 		logger.debug("Before: " + msgPack);
     	MessageChannel channel = event.getChannel();
     	logger.debug("Channel ID: " + channel.getIdLong());
-    	if(channel.getIdLong() == msgPack.getChannelId()) {
+    	if(channel.getIdLong() == msgPack.getPublicChannel().getIdLong()) {
     		
     		int emoji = parseEmoji(event.getReactionEmote().getAsReactionCode());
 
@@ -247,7 +229,7 @@ public class Bot extends ListenerAdapter{
     		
     		
     		
-    	} else if(channel.getIdLong() == msgPack.getAdminChannelId()) {
+    	} else if(channel.getIdLong() == msgPack.getAdminChannel().getIdLong()) {
     		
     	}
     	
@@ -264,7 +246,7 @@ public class Bot extends ListenerAdapter{
 		logger.debug("Before: " + msgPack);
     	MessageChannel channel = event.getChannel();
     	logger.debug("Channel ID: " + channel.getIdLong());
-    	if(channel.getIdLong() == msgPack.getChannelId()) {
+    	if(channel.getIdLong() == msgPack.getPublicChannel().getIdLong()) {
     		int emoji = parseEmoji(event.getReactionEmote().getAsReactionCode());
     		logger.debug("Emoji: " + emoji);
     		if (emoji == 0) return;
@@ -277,13 +259,13 @@ public class Bot extends ListenerAdapter{
     			bossQueues[emoji-1].remove(event.getUserId());
     			listBossQueue();
 			}
-    	} else if(channel.getIdLong() == msgPack.getAdminChannelId()) {
+    	} else if(channel.getIdLong() == msgPack.getAdminChannel().getIdLong()) {
     		
     	}
     	logger.debug("After: " + msgPack);
-		jda.retrieveUserById(event.getUserId()).queue(user->{
-
-		});;
+//		jda.retrieveUserById(event.getUserId()).queue(user->{
+//
+//		});;
     	return;
     }
 	

@@ -35,7 +35,7 @@ public class BossHit implements Runnable{
 	
 	@Override
 	public void run(){
-		msgPack.getChannelId();
+		msgPack.getPublicChannel();
 	}
 
 }

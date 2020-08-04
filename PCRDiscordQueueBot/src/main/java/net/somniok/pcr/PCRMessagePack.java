@@ -1,9 +1,10 @@
 package net.somniok.pcr;
 
+import net.dv8tion.jda.api.entities.Invite.Channel;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class PCRMessagePack {
-	private long channelId;
 	private Message info;
 	private Message info2;
 
@@ -11,37 +12,16 @@ public class PCRMessagePack {
 	private Message controlB;
 	private Message controlC;
 	private Message controlD;
-	private Message listing;
+	private Message queueList;
+
+	private MessageChannel publicChannel;
+	private MessageChannel adminChannel;
 	
-	private long adminChannelId;
 	
-	
-	@Override
-	public boolean equals(Object o) {
-		if(o instanceof PCRMessagePack) {
-			if(this.channelId == ((PCRMessagePack) o).getChannelId() ) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	@Override
-	public int hashCode() {
-		return Long.hashCode(this.channelId);
+	public PCRMessagePack(MessageChannel channel) {
+		this.publicChannel = channel;
 	}
 
-	
-	public PCRMessagePack(long channelId) {
-		this.channelId = channelId;
-	}
-	
-	public long getChannelId() {
-		return channelId;
-	}
-	public void setChannelId(long channelId) {
-		this.channelId = channelId;
-	}
 	public Message getInfo() {
 		return info;
 	}
@@ -78,28 +58,27 @@ public class PCRMessagePack {
 	public void setControlD(Message controlD) {
 		this.controlD = controlD;
 	}
-
-	public long getAdminChannelId() {
-		return adminChannelId;
+	public Message getQueueList() {
+		return queueList;
+	}
+	public void setQueueList(Message listing) {
+		this.queueList = listing;
 	}
 
-	public void setAdminChannelId(long adminChannelId) {
-		this.adminChannelId = adminChannelId;
+	public MessageChannel getPublicChannel() {
+		return publicChannel;
 	}
 
-	public Message getListing() {
-		return listing;
+	public void setPublicChannel(MessageChannel publicChannel) {
+		this.publicChannel = publicChannel;
 	}
 
-	public void setListing(Message listing) {
-		this.listing = listing;
+	public MessageChannel getAdminChannel() {
+		return adminChannel;
 	}
 
-	@Override
-	public String toString() {
-		return "PCRMessagePack [channelId=" + channelId + ", info=" + info + ", info2=" + info2 + ", controlA="
-				+ controlA + ", controlB=" + controlB + ", controlC=" + controlC + ", controlD=" + controlD
-				+ ", listing=" + listing + ", adminChannelId=" + adminChannelId + "]";
+	public void setAdminChannel(MessageChannel adminChannel) {
+		this.adminChannel = adminChannel;
 	}
-	
+
 }
