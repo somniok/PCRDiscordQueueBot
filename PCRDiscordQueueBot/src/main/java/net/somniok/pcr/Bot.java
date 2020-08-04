@@ -37,7 +37,7 @@ public class Bot extends ListenerAdapter{
 	
 	protected static JDA jda;
 	
-	protected PCRMessagePack msgPack;
+	protected static PCRMessagePack msgPack;
 	
 	protected List<String>[] oneHitBossQueues;
 	protected List<String>[] bossQueues;

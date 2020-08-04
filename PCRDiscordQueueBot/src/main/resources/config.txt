@@ -1,2 +1,5 @@
+#please fill in your bot token after the "token="
+#請於"token="後填上你的機器人權杖
+token=
 #
-token=/*Please fill in your discord bot token here */
+#
