@@ -1,0 +1,2 @@
+#
+token=/*Please fill in your discord bot token here */
