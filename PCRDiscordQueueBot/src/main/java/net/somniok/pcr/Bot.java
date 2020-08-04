@@ -1,9 +1,13 @@
 package net.somniok.pcr;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -66,9 +70,22 @@ public class Bot extends ListenerAdapter{
 //            System.out.println("You have to provide a token as first argument!");
 //            System.exit(1);
 //        }
-    	jda = JDABuilder.createLight("NjgzNTY2MzQyNTE0ODAyNjk4.XltxMA.dZk0fYnCpE7ZIPBeahRQ3PdsU1Q")
-            .addEventListeners(new Bot())
-            .setActivity(Activity.playing("公主連結戰隊戰")).build();
+    	FileReader reader;
+		try {
+			reader = new FileReader("config.properties");
+	        Properties p=new Properties();  
+	        p.load(reader);
+	    	jda = JDABuilder.createLight(p.getProperty("token"))
+	                .addEventListeners(new Bot())
+	                .setActivity(Activity.playing("公主連結戰隊戰")).build();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  
+        
     }
 
     @Override
