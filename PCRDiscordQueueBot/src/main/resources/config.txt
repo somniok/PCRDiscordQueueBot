@@ -1,2 +1,0 @@
-#config options in development
-#可設置選項開發中

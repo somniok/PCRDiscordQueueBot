@@ -1,0 +1,43 @@
+#Boss Score Multiplier
+#Boss 分數倍率
+bossRatio1-1=1.2
+bossRatio1-2=1.2
+bossRatio1-3=1.3
+bossRatio1-4=1.4
+bossRatio1-5=1.5
+bossRatio2-1=1.6
+bossRatio2-2=1.6
+bossRatio2-3=1.8
+bossRatio2-4=1.9
+bossRatio2-5=2.0
+bossRatio3-1=2.0
+bossRatio3-2=2.0
+bossRatio3-3=2.4
+bossRatio3-4=2.4
+bossRatio3-5=2.6
+bossRatio4-1=3.5
+bossRatio4-2=3.5
+bossRatio4-3=3.7
+bossRatio4-4=3.8
+bossRatio4-5=4.0
+#Boss HP
+bossHP1-1=6000000
+bossHP1-2=8000000
+bossHP1-3=10000000
+bossHP1-4=12000000
+bossHP1-5=15000000
+bossHP2-1=6000000
+bossHP2-2=8000000
+bossHP2-3=10000000
+bossHP2-4=12000000
+bossHP2-5=15000000
+bossHP3-1=7000000
+bossHP3-2=9000000
+bossHP3-3=13000000
+bossHP3-4=15000000
+bossHP3-5=20000000
+bossHP4-1=15000000
+bossHP4-2=16000000
+bossHP4-3=18000000
+bossHP4-4=19000000
+bossHP4-5=20000000

@@ -1,6 +1,5 @@
-package net.somniok.pcr;
+package net.somniok.pcr.object;
 
-import net.dv8tion.jda.api.entities.Invite.Channel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
@@ -17,6 +16,8 @@ public class PCRMessagePack {
 	private MessageChannel publicChannel;
 	private MessageChannel adminChannel;
 	
+	public PCRMessagePack() {
+	}
 	
 	public PCRMessagePack(MessageChannel channel) {
 		this.publicChannel = channel;
